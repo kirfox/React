@@ -38,7 +38,7 @@ const Login = styled.button`
   color: white;
   font-size: 18px;
   padding: 10px;
-  cursor: pointer;
+  margin-right: 30px;
   transition: .3s linear;
 
   :hover {
@@ -46,9 +46,6 @@ const Login = styled.button`
     background-color: white;
   }
 
-  :active, :focus {
-    outline: none;
-  }
 `;
 export const NavBar = () => (
   <NavBarStyled>
