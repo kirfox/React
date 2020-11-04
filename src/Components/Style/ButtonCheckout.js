@@ -20,4 +20,9 @@ export const ButtonCheckout = styled.button`
   :active, :focus {
     outline: none;
   }
+  :disabled {
+    color: #bbb;
+    background-color: #ccc;
+    border-color: #aaa;
+  }
 `;
