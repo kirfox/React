@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { ButtonCheckout } from '../Style/ButtonCheckout';
 import { OrderListItem } from './OrderListItem';
-import { totalPriceItems } from '../Functions/secondaryFunction';
-import { formatCurrency } from '../Functions/secondaryFunction';
+import { totalPriceItems, formatCurrency } from '../Functions/secondaryFunction';
+import { Context } from '../Functions/context';
+
 
 const OrderStyled = styled.section`
   position: fixed;
@@ -18,7 +19,7 @@ const OrderStyled = styled.section`
   padding: 20px;
 `;
 
-const OrderTitle = styled.h2`
+export const OrderTitle = styled.h2`
   text-align: center;
   margin-bottom: 30px;
 `;
@@ -29,7 +30,7 @@ const OrderContent = styled.div`
 
 const OrderList= styled.ul``;
 
-const Total = styled.div`
+export const Total = styled.div`
   display: flex;
   margin: 0 35px 30px ;
   & span:first-child {
@@ -38,7 +39,7 @@ const Total = styled.div`
 `;
 
 
-const TotalPrice = styled.span`
+export const TotalPrice = styled.span`
   min-width: 65px;
   margin-left: 20px;
 `;
@@ -48,7 +49,19 @@ const EmptyList = styled.p`
 `;
 
 
-export const Order = ({ orders }) => {
+
+export const Order = () => {
+
+  const {
+    auth: { authentication, logIn },
+    orders: { orders, setOrders },
+    orderConfirm: {  setOpenOrderConfirm },
+  } = useContext(Context);
+
+  const deleteItem = index => {
+    const newOrders = orders.filter((item, i)=> index !==i);
+    setOrders(newOrders);
+  }
 
   const total = orders.reduce((result, order)=>totalPriceItems(order) + result, 0);
 
@@ -60,17 +73,33 @@ export const Order = ({ orders }) => {
       <OrderContent>
         {orders.length ? 
           <OrderList>
-           {orders.map(order => <OrderListItem order={order} />)}
+           {orders.map((order, index) => <OrderListItem 
+              key={index}
+              order={order} 
+              deleteItem={deleteItem}
+              index={index}
+            />)}
           </OrderList> : 
           <EmptyList>Список заказов пуст</EmptyList>
         }
       </OrderContent>
-      <Total>
-        <span>Итого</span>
-        <span>{totalCounter}</span>
-        <TotalPrice>{formatCurrency(total)}</TotalPrice>
-      </Total>
-      <ButtonCheckout>Оформить</ButtonCheckout> 
+      {orders.length ? 
+        <>
+          <Total>
+            <span>Итого</span>
+            <span>{totalCounter}</span>
+            <TotalPrice>{formatCurrency(total)}</TotalPrice>
+          </Total>
+          <ButtonCheckout onClick={() => {
+            if (authentication) {
+              setOpenOrderConfirm(true);
+            } else {
+              logIn()
+            }
+          }}>Оформить</ButtonCheckout> 
+        </> :
+        null
+      }
     </OrderStyled>
   );
 }

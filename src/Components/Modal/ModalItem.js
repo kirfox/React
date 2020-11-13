@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { ButtonCheckout } from '../Style/ButtonCheckout';
 import  СountItem  from './CountItem';
@@ -9,8 +9,9 @@ import { Toppings } from '../Modal/Toppings';
 import { Choices } from '../Modal/Choices';
 import { useToppings } from '../Hooks/useToppings';
 import { useChoices } from '../Hooks/useChoices';
+import { Context } from '../Functions/context';
 
-const Overlay = styled.div`
+export const Overlay = styled.div`
   position: fixed;
   display: flex;
   justify-content: center;
@@ -61,11 +62,17 @@ const TotalPriceItem = styled.div`
 
 
 
-export const ModalItem = ({ openItem, setOpenItem, orders, setOrders }) =>{
+export const ModalItem = () =>{
 
-  const counter = useCount();
+  const {
+    orders: { orders, setOrders },
+    openItem: { openItem, setOpenItem }
+  } = useContext(Context);
+
+  const counter = useCount(openItem.count);
   const toppings = useToppings(openItem);
   const choices = useChoices(openItem);
+  const isEdit = openItem.index > -1;
 
   const closeModal = e => {
       if (e.target.id === 'overlay') {
@@ -80,7 +87,12 @@ export const ModalItem = ({ openItem, setOpenItem, orders, setOrders }) =>{
     choice: choices.choice,
   };
 
-
+  const editOrder = () => {
+    const newOrders = [...orders];
+    newOrders[openItem.index] = order;
+    setOrders(newOrders);
+    setOpenItem(null);
+  }
 
   const addToOrder = () => {
     setOrders([...orders, order]);
@@ -105,9 +117,9 @@ export const ModalItem = ({ openItem, setOpenItem, orders, setOrders }) =>{
           </TotalPriceItem>
           
           <ButtonCheckout 
-            onClick={addToOrder}
+            onClick={isEdit ? editOrder : addToOrder}
             disabled={order.choices && !order.choice}>
-            Добавить</ButtonCheckout> 
+            {isEdit ? 'Редактировать' : 'Добавить'}</ButtonCheckout> 
         </ModalContent>
       </Modal>
     </Overlay>
